@@ -188,6 +188,30 @@ const bibliography = new Map();
     }
   });
 
+  visit(markdownAST, `text`, node => {
+    var citekeys = node.value.match(/\\nocite{([^}]*)}/g);
+    //console.log(citekeys);
+    for (var k in citekeys) {
+      const keys_str = citekeys[k].substring(6, citekeys[k].length - 1);
+      const keys = keys_str.split(',');
+
+      const cite_string = inline_cite_short(keys, bibliography);
+
+      var cite_hover_str = '';
+      keys.map((key,n) => {
+        if (n>0) cite_hover_str += '<br><br>';
+        //cite_hover_str += hover_cite(bibliography.get(key));
+      });
+      var n = 0;
+
+      const orig_string = '';//node.value;
+      const replacement = '';//`<span id="citation-${n}" data-hover="${cite_hover_str}">${orig_string}<span class="citation-number">${cite_string}</span></span>`;
+
+      node.type = `html`;
+      node.value = node.value.replace("\\cite{" + keys_str + "}", replacement);
+    }
+  });
+
   visit(markdownAST, "html", (node, index, parent) => {
     if (node.value.startsWith(`<bibliography>`)) {
       let res = '<ol>';
