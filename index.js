@@ -166,7 +166,7 @@ const bibliography = new Map();
 
   visit(markdownAST, `text`, node => {
     var citekeys = node.value.match(/\\cite{([^}]*)}/g);
-    //console.log(citekeys);
+    console.log("CITE:" + citekeys);
     for (var k in citekeys) {
       const keys_str = citekeys[k].substring(6, citekeys[k].length - 1);
       const keys = keys_str.split(',');
@@ -190,10 +190,16 @@ const bibliography = new Map();
 
   visit(markdownAST, `text`, node => {
     var citekeys = node.value.match(/\\nocite{([^}]*)}/g);
-    //console.log(citekeys);
+    console.log("NOCITE:" + citekeys);
     for (var k in citekeys) {
-      const keys_str = citekeys[k].substring(6, citekeys[k].length - 1);
-      const keys = keys_str.split(',');
+      const keys_str = citekeys[k].substring(8, citekeys[k].length - 1);
+      var keys = keys_str.split(',');
+
+      console.log(keys);
+
+      if(keys.includes("*")) {
+        keys = Array.from(bibliography.keys());
+      }
 
       const cite_string = inline_cite_short(keys, bibliography);
 
@@ -208,7 +214,7 @@ const bibliography = new Map();
       const replacement = '';//`<span id="citation-${n}" data-hover="${cite_hover_str}">${orig_string}<span class="citation-number">${cite_string}</span></span>`;
 
       node.type = `html`;
-      node.value = node.value.replace("\\cite{" + keys_str + "}", replacement);
+      node.value = node.value.replace("\\nocite{" + keys_str + "}", replacement);
     }
   });
 
